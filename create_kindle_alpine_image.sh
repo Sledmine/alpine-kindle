@@ -14,6 +14,8 @@
 #              created image/install more packages/whatever. To finish the script just leave the sh shell with "exit"
 # STARGUI: This is the script that gets executed inside the container when the GUI is started. Xepyhr is used to render the desktop
 #          inside a window, that has the correct name to be displayed in fullscreen by the kindle's awesome windowmanager
+
+# NOW WORKING ON ADDING ANGELFISH INSTEAD OF CHROMIUM
 REPO="https://dl-cdn.alpinelinux.org/alpine/"
 MNT="/mnt/alpine"
 IMAGE="./alpine.ext3"
@@ -29,7 +31,7 @@ apk add xorg-server-xephyr xwininfo xdotool xinput dbus-x11 sudo bash nano git
 apk add desktop-file-utils gtk-engines consolekit gtk-murrine-engine thunar marco gnome-themes-extra
 apk add xfce4 xfce4-terminal
 apk add \$(apk search -q ttf- | grep -v '\-doc')
-apk add onboard chromium
+apk add onboard angelfish kirigami2
 adduser alpine -D
 echo -e \"alpine\nalpine\" | passwd alpine
 echo '%sudo ALL=(ALL) ALL' >> /etc/sudoers
@@ -54,38 +56,26 @@ Icon=utilities-terminal
 Terminal=false
 Categories=Utility;TerminalEmulator;' > /usr/share/applications/xfce4-terminal.desktop
 
-echo 'Adding a desktop icon for Chromium'
+echo 'Adding a desktop icon for Angelfish'
 echo '[Desktop Entry]
 Version=1.0
 Type=Application
-Name=Chromium
-Comment=Access the Internet
-Exec=chromium
-Icon=chromium
+Name=Angelfish
+Comment=Web Browser
+Exec=angelfish
+Icon=angelfish
 Terminal=false
-Categories=Network;WebBrowser;' > /usr/share/applications/chromium.desktop
+Categories=Network;WebBrowser;' > /usr/share/applications/angelfish.desktop
 
 # Add previous desktop icons to the alpine user's desktop
 # Keep previous ones so they appear in the apps menu as well (bugged as of now btw)
 mkdir -p /home/alpine/Desktop
 cp /usr/share/applications/xfce4-terminal.desktop /home/alpine/Desktop/
-cp /usr/share/applications/chromium.desktop /home/alpine/Desktop/
+cp /usr/share/applications/angelfish.desktop /home/alpine/Desktop/
 cp /usr/share/applications/onboard.desktop /home/alpine/Desktop/
 chown -R alpine:alpine /home/alpine/Desktop
 # Set desktop files as trusted (otherwise XFCE won't show them)
 chmod +x /home/alpine/Desktop/*.desktop
-
-echo '# Default settings for chromium. This file is sourced by /bin/sh from
-# the chromium launcher.
-
-# Options to pass to chromium.
-mouseid=\"\$(env DISPLAY=:1 xinput list --id-only \"Xephyr virtual mouse\")\"
-CHROMIUM_FLAGS='\''--force-device-scale-factor=2 --touch-devices='\''\$mouseid'\'' --pull-to-refresh=1 --disable-smooth-scrolling --enable-low-end-device-mode --disable-login-animations --disable-modal-animations --wm-window-animations-disabled --start-maximized --user-agent=Mozilla%2F5.0%20%28Linux%3B%20Android%207.0%3B%20SM-G930V%20Build%2FNRD90M%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F59.0.3071.125%20Mobile%20Safari%2F537.36'\''' > /etc/chromium/chromium.conf
-mkdir -p /usr/share/chromium/extensions
-# Install uBlock Origin
-echo '{
-	\"external_update_url\": \"https://clients2.google.com/service/update2/crx\"
-}' > /usr/share/chromium/extensions/cjpalhdlnbpafiamejdnhcphjbkeiagm.json
 
 echo \"You're now dropped into an interactive shell in Alpine, feel free to explore and type exit to leave.\"
 sh"
